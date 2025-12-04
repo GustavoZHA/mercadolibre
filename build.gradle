@@ -1,0 +1,73 @@
+plugins {
+    id 'java'
+    id "se.thinkcode.cucumber-runner" version "0.0.8"
+}
+
+group = 'com'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+configurations {
+    cucumberRuntime {
+        extendsFrom testImplementation
+    }
+}
+
+dependencies {
+    //  ** rest assured dependencies: **
+    // https://mvnrepository.com/artifact/io.rest-assured/rest-assured
+    implementation group: 'io.rest-assured', name: 'rest-assured', version: '5.4.0'
+    // https://mvnrepository.com/artifact/io.rest-assured/json-schema-validator
+    implementation group: 'io.rest-assured', name: 'json-schema-validator', version: '5.4.0'
+
+    //   ** selenium dependencies: **
+    implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.21.0'
+    implementation group: 'io.github.bonigarcia', name: 'webdrivermanager', version: '6.3.3'
+    implementation group: 'com.assertthat', name: 'selenium-shutterbug', version: '1.6'
+
+    //   ** cucumber dependencies: **
+    // https://mvnrepository.com/artifact/io.cucumber/cucumber-java
+    implementation group: 'io.cucumber', name: 'cucumber-java', version: '7.18.0'
+    // https://mvnrepository.com/artifact/net.masterthought/cucumber-reporting
+    implementation group: 'net.masterthought', name: 'cucumber-reporting', version: '5.8.0'
+    // https://mvnrepository.com/artifact/io.cucumber/cucumber-testng
+    implementation group: 'io.cucumber', name: 'cucumber-testng', version: '7.18.0'
+    // https://mvnrepository.com/artifact/io.cucumber/cucumber-picocontainer
+    implementation group: 'io.cucumber', name: 'cucumber-picocontainer', version: '7.18.0'
+
+    //   ** logger dependencies: **
+    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-api
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.23.1'
+    // https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core
+    implementation group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.23.1'
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-simple
+    testImplementation group: 'org.slf4j', name: 'slf4j-simple', version: '2.0.12'
+
+    //  ** lombok dependencies: **
+    // https://mvnrepository.com/artifact/org.projectlombok/lombok
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.18.30'
+    annotationProcessor group: 'org.projectlombok', name: 'lombok', version: '1.18.30'
+}
+
+task executeFeatures(type: Test) {
+    useTestNG()
+    options {
+        useDefaultListeners = false
+        jvmArgs = ['-Dcucumber.glue=budget']
+        jvmArgs = ['-Dcucumber.features=src/test/resources/features/']
+        jvmArgs = ['-Dcucumber.plugin=pretty,' +
+                           'html:build/cucumber/cucumber-report.html,' +
+                           'json:build/cucumber/cucumber.json,' +
+                           'rerun:build/cucumber/rerun.txt']
+    }
+    testLogging.showStandardStreams = true
+}
+
+test {
+    useTestNG()
+    testLogging.showStandardStreams = true
+    systemProperty "cucumber.filter.tags", System.getProperty("tags", "@regression and @gui")
+}
